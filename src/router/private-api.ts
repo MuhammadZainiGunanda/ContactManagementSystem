@@ -9,3 +9,4 @@ privateRouter.use(authMiddleware);
 // User API
 privateRouter.get("/api/users/me", UserController.getUser);
 privateRouter.patch("/api/users/update", UserController.updateUser);
+privateRouter.delete("/api/users/logout", UserController.logoutUser);

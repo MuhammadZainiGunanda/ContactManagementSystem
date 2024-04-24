@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../service/user-service";
-import { InputUserRegistration, UserOperationOutcome } from "../model/user-management";
+import { UserOperationOutcome } from "../model/user-management";
 import { ResponseError } from "../error/response-error";
 import jwt from 'jsonwebtoken';
 import { RequestUserValidator } from "../types/request-middleware";
@@ -49,6 +49,14 @@ export class UserController {
                console.info(updateUserConfirmation);
                
                response.status(200).json({ data: updateUserConfirmation });
+          } catch (error) {
+               next(error);
+          }
+     }
+
+     static async logoutUser(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
+          try {
+               response.clearCookie("login").status(200).json({ data: "OK" });
           } catch (error) {
                next(error);
           }

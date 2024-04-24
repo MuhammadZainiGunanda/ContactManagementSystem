@@ -162,8 +162,8 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
           console.info(login.headers["set-cookie"][0]);
 
           expect(login.statusCode).toBe(200);
-          expect(login.body.username).toBe("testt");
-          expect(login.body.name).toBe("testt");
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
           const getTokenFromCookies = login.headers["set-cookie"][0];
@@ -177,8 +177,8 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
           console.info(get.body);
           
           expect(get.statusCode).toBe(200);
-          expect(get.body.username).toBe("testt");
-          expect(get.body.name).toBe("testt");
+          expect(get.body.data.username).toBe("testt");
+          expect(get.body.data.name).toBe("testt");
      });
 
      it("should Unauthorized if token is invalid", async () : Promise<void> => {
@@ -345,6 +345,76 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
           
           expect(update.statusCode).toBe(400);
           expect(update.body.errors).toBeDefined();
+     });
+
+});
+
+describe("Test logout operation -> DELETE /api/users/logout", () : void => {
+
+     beforeEach(async () : Promise<void> => {
+          await TestUtil.createUser();
+     });
+
+     afterEach(async () : Promise<void> => {
+          await TestUtil.deleteUser();
+     });
+
+     it("should to be able to user logout", async () : Promise<void> => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          console.info(login.body);
+          console.info(login.headers);
+          
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+          expect(login.header["set-cookie"][0]).toBeDefined();
+
+          const getTokenFromCookies = login.header["set-cookie"][0];
+
+          let logout : Response = await supertest(web)
+               .delete("/api/users/logout")
+               .set("Cookie", `${getTokenFromCookies}`);
+
+          console.info(logout.header["set-cookie"]);
+
+          expect(logout.statusCode).toBe(200);
+          expect(logout.headers["set-cookie"]).toBeDefined();
+          expect(logout.body.data).toBe("OK");
+     });
+
+     it("should reject if token is invalid", async () : Promise<void> => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          console.info(login.body);
+          console.info(login.headers);
+          
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+          expect(login.header["set-cookie"][0]).toBeDefined();
+
+          const getTokenFromCookies = login.header["set-cookie"][0];
+
+          let logout : Response = await supertest(web)
+               .delete("/api/users/logout")
+               .set("Cookie", `salah`);
+
+          console.info(logout.header["set-cookie"]);
+
+          expect(logout.statusCode).toBe(400);
+          expect(logout.headers["set-cookie"]).toBeUndefined();
+          expect(logout.body.errors).toBeDefined();
      });
 
 });
