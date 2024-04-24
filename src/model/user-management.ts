@@ -6,6 +6,16 @@ export type InputUserRegistration = {
      password : string;
 }
 
+export type InputUserLogin = {
+     username : string;
+     password : string;
+}
+
+export type InputUserUpdate = {
+     name : string;
+     password : string;
+}
+
 export type UserOperationOutcome = {
      username : string;
      name : string;
