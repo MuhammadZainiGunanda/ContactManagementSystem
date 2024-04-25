@@ -14,4 +14,14 @@ export class ContactController {
           }
      }
 
+     static async getContact(request : RequestUserValidator, response : Response, next: NextFunction) : Promise<void> {
+          try {
+               const submitGetContactConfirmation = await ContactService.submitGetContact(request.user!, Number(request.params.contactId));
+
+               response.status(200).json({ data: submitGetContactConfirmation });
+          } catch (error) {
+               next(error);
+          }
+     }
+
 }

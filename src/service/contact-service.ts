@@ -3,6 +3,7 @@ import { ContactOperationOutcome, InputContactCreate, convertToContactResponseOu
 import { Validation } from "../validation/validation";
 import { ContactInputValidationRules } from "../validation/contact-validation";
 import { prismaClient } from "../app/database";
+import { ResponseError } from "../error/response-error";
 
 export class ContactService {
      
@@ -18,6 +19,18 @@ export class ContactService {
           });
 
           return convertToContactResponseOutcome(createContact);
+     }
+
+     static async submitGetContact(user : User, contactId : number) : Promise<ContactOperationOutcome> {
+          const checkContactMustExist = await prismaClient.contact.findFirst({
+               where: { username: user.username, id: contactId }
+          });
+
+          if (!checkContactMustExist) {
+               throw new ResponseError(404, "Contact not found");
+          }
+
+          return convertToContactResponseOutcome(checkContactMustExist);
      }
 
 }
