@@ -15,4 +15,10 @@ export class TestUtil {
           });
      };
 
+     static async deleteContact() : Promise<void> {
+          await prismaClient.contact.deleteMany({
+               where: { username : "testt" }
+          });
+     }
+
 }
