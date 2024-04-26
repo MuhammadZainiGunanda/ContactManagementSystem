@@ -17,3 +17,4 @@ privateRouter.post("/api/contacts", ContactController.createContact);
 privateRouter.get("/api/contacts/:contactId(\\d+)", ContactController.getContact);
 privateRouter.put("/api/contacts/:contactId(\\d+)", ContactController.updateContact);
 privateRouter.delete("/api/contacts/:contactId(\\d+)", ContactController.removeContact);
+privateRouter.get("/api/contacts/search", ContactController.searchContact);

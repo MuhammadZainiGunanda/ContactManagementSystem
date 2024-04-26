@@ -417,3 +417,156 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
      });
 
 });
+
+describe("Test search contact operation -> GET /api/contact/search", () => {
+
+     beforeEach(async () => {
+          await TestUtil.createUser();
+          await TestUtil.createContact();
+     });
+
+     afterEach(async () => {
+          await TestUtil.deleteContact();
+          await TestUtil.deleteUser();
+     });
+
+     it("should be able to search contact", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+     
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+     
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          let search : Response = await supertest(web)
+               .get("/api/contacts/search")
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(search.body);
+
+          expect(search.statusCode).toBe(200);
+          expect(search.body.data).toHaveLength(1);
+          expect(search.body.paging.size).toBe(1);
+          expect(search.body.paging.total_page).toBe(1);
+          expect(search.body.paging.current_page).toBe(1);
+     });
+
+     it("should to be able search contact using name", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          let search : Response = await supertest(web)
+               .get("/api/contacts/search")
+               .query({ name: "es"})
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(search.body);
+
+          expect(search.statusCode).toBe(200);
+          expect(search.body.data).toHaveLength(1);
+          expect(search.body.paging.size).toBe(1);
+          expect(search.body.paging.total_page).toBe(1);
+          expect(search.body.paging.current_page).toBe(1);
+     });
+
+     it("should to be able search contact using email", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          let search : Response = await supertest(web)
+               .get("/api/contacts/search")
+               .query({ email: ".com"})
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(search.body);
+
+          expect(search.statusCode).toBe(200);
+          expect(search.body.data).toHaveLength(1);
+          expect(search.body.paging.size).toBe(1);
+          expect(search.body.paging.total_page).toBe(1);
+          expect(search.body.paging.current_page).toBe(1);
+     });
+
+     it("should to be able search contact using phone", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          let search : Response = await supertest(web)
+               .get("/api/contacts/search")
+               .query({ phone: "5"})
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(search.body);
+
+          expect(search.statusCode).toBe(200);
+          expect(search.body.data).toHaveLength(1);
+          expect(search.body.paging.size).toBe(1);
+          expect(search.body.paging.total_page).toBe(1);
+          expect(search.body.paging.current_page).toBe(1);
+     });
+
+     it("should reject if contact does not exist", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          let search : Response = await supertest(web)
+               .get("/api/contacts/search")
+               .query({ name: "blank"})
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(search.body);
+
+          expect(search.statusCode).toBe(200);
+          expect(search.body.data).toHaveLength(0);
+          expect(search.body.paging.size).toBe(1);
+          expect(search.body.paging.total_page).toBe(0);
+          expect(search.body.paging.current_page).toBe(1);
+     });
+
+});
