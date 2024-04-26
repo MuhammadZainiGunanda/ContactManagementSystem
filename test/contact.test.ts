@@ -323,3 +323,97 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
      });
 
 });
+
+describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () => {
+
+     beforeEach(async () => {
+          await TestUtil.createUser();
+          await TestUtil.createContact();
+     });
+
+     afterEach(async () => {
+          await TestUtil.deleteContact();
+          await TestUtil.deleteUser();
+     });
+
+     it("should to be able to remove contact by id", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+          
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          let remove : Response = await supertest(web)
+               .delete(`/api/contacts/${getContact?.id}`)
+               .set("Cookie", `${getTokenFromCookie}`);
+
+          console.info(remove.body);
+
+          expect(remove.statusCode).toBe(200);
+          expect(remove.body.data).toBe("Successfully");
+     });
+
+     it("should reject if token is invalid or wrong", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+          
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          let remove : Response = await supertest(web)
+               .delete(`/api/contacts/${getContact?.id}`)
+               .set("Cookie", `salah`);
+
+          console.info(remove.body);
+
+          expect(remove.statusCode).toBe(400);
+          expect(remove.body.errors).toBe("Unauthorized");
+     });
+
+     it("should reject if id is invalid", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+          
+          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          if(getContact) {
+               let remove : Response = await supertest(web)
+                    .delete(`/api/contacts/${getContact?.id + 1}`)
+                    .set("Cookie", `salah`);
+
+               console.info(remove.body);
+
+               expect(remove.statusCode).toBe(400);
+               expect(remove.body.errors).toBe("Unauthorized");
+          }
+     });
+
+});

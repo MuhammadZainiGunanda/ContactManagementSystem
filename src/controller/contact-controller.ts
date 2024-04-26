@@ -28,15 +28,26 @@ export class ContactController {
           }
      }
 
-     static async updateContact(reqeust : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
+     static async updateContact(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
           try {
-               const requestPayload : InputContactUpdateRequest = reqeust.body as InputContactUpdateRequest;
-               requestPayload.id = Number(reqeust.params.contactId);
+               const requestPayload : InputContactUpdateRequest = request.body as InputContactUpdateRequest;
+               requestPayload.id = Number(request.params.contactId);
 
                const submitUpdateContactConfirmation : ContactOperationOutcome | ResponseError = 
-                    await ContactService.submitUpdateContact(reqeust.user!, requestPayload);
+                    await ContactService.submitUpdateContact(request.user!, requestPayload);
 
                response.status(200).json({ data: submitUpdateContactConfirmation });
+          } catch (error) {
+               next(error);
+          }
+     }
+
+     static async removeContact(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
+          try {
+               const submitRemoveContactConfirmation : ContactOperationOutcome | ResponseError = 
+                    await ContactService.submitRemoveContact(request.user!, Number(request.params.contactId));
+
+               response.status(200).json({ data: "Successfully" });
           } catch (error) {
                next(error);
           }

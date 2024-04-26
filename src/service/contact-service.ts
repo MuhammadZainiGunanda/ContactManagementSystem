@@ -51,4 +51,20 @@ export class ContactService {
           return convertToContactResponseOutcome(updateRecord);
      }
 
+     static async submitRemoveContact(userPayload : User, contactId : number) : Promise<ContactOperationOutcome> {
+          const checkContactMustExist : Contact  | null = await prismaClient.contact.findFirst({
+               where: { username: userPayload.username, id: contactId }
+          });
+
+          if (!checkContactMustExist) {
+               throw new ResponseError(404, "Contact not found");
+          }
+
+          const deleteRecord : Contact = await prismaClient.contact.delete({
+               where: { username: userPayload.username, id: contactId }
+          });
+
+          return convertToContactResponseOutcome(deleteRecord);
+     }
+
 }
