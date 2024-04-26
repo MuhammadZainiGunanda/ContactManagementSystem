@@ -208,3 +208,118 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
      });
 
 });
+
+describe("Test update contact operation -> PUT /api/contacts/:contactId", () => {
+
+     beforeEach(async () : Promise<void> => {
+          await TestUtil.createUser();
+          await TestUtil.createContact();
+     });
+
+     afterEach(async () : Promise<void> => {
+          await TestUtil.deleteContact();
+          await TestUtil.deleteUser();
+     });
+
+     it("should can update data contact", async () => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          let update : Response = await supertest(web)
+               .put(`/api/contacts/${getContact?.id}`)
+               .set("Cookie", `${getTokenFromCookie}`)
+               .send({
+                    first_name: "testLagi",
+                    last_name: "testLagi",
+                    email: "testlagi@gmail.com",
+                    phone: "0879765477"
+               });
+
+          console.info(update.body);
+
+          expect(update.statusCode).toBe(200);
+          expect(update.body.data.id).toBeDefined();
+          expect(update.body.data.first_name).toBe("testLagi");
+          expect(update.body.data.last_name).toBe("testLagi");
+          expect(update.body.data.email).toBe("testlagi@gmail.com");
+          expect(update.body.data.phone).toBe("0879765477");
+     });
+
+     it("should reject if data invalid", async () : Promise<void> => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          let update : Response = await supertest(web)
+               .put(`/api/contacts/${getContact?.id}`)
+               .set("Cookie", `${getTokenFromCookie}`)
+               .send({
+                    first_name: "",
+                    last_name: "",
+                    email: "",
+                    phone: ""
+               });
+
+          console.info(update.body);
+          console.info(update.body.errors);
+
+          expect(update.statusCode).toBe(400);
+          expect(update.body.errors).toBeDefined();
+     });
+
+     it("should reject if token is wrong", async () : Promise<void> => {
+          let login : Response = await supertest(web)
+               .post("/api/users/login")
+               .send({
+                    username: "testt",
+                    password: "Testt"
+               });
+
+          const getTokenFromCookie = login.headers["set-cookie"][0];
+
+          expect(login.statusCode).toBe(200);
+          expect(login.body.data.username).toBe("testt");
+          expect(login.body.data.name).toBe("testt");
+
+          const getContact : Contact | null = await TestUtil.getContact();
+
+          let update : Response = await supertest(web)
+               .put(`/api/contacts/${getContact?.id}`)
+               .set("Cookie", `salah`)
+               .send({
+                    first_name: "testLagi",
+                    last_name: "testLagi",
+                    email: "testlagi@gmail.com",
+                    phone: "0879765477"
+               });
+
+          console.info(update.body);
+
+          expect(update.statusCode).toBe(400);
+          expect(update.body.errors).toBeDefined();
+     });
+
+});
