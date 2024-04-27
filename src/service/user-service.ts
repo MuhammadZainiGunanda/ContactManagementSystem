@@ -25,6 +25,8 @@ export class UserService {
           inputUserRegistration.password = await bcrypt.hash(inputUserRegistration.password, 10);
 
           // Buat record user baru di database
+          inputUserRegistration.password = await bcrypt.hash(inputUserRegistration.password, 10);
+
           const createUserRecord : User = await prismaClient.user.create({
                data: inputUserRegistration
           });
@@ -67,6 +69,8 @@ export class UserService {
           Validation.validate(UserInputValidationRules.UPDATE_VALIDATION_RULES, inputUpdateUser);
 
           // Jika yang diberikan data name, update info user berdasarkan input yang diberikan
+          Validation.validate(UserInputValidationRules.UPDATE_VALIDATION_RULES, inputUpdateUser);
+
           if (inputUpdateUser.name) {
                user.name = inputUpdateUser.name;
           };
