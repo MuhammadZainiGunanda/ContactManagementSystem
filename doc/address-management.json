@@ -1,0 +1,651 @@
+{
+     "openapi":"3.0.2",
+     "info": {
+          "version":"1.0",
+          "title":"Contact Management System RESTful API",
+          "contact": {
+               "name": "Muhammad Zaini Gunanda",
+               "email": "muhammadzainigunanda@gmail.com"
+          }
+     },
+     "servers": [
+          {
+               "url":"http://localhost:3000/v1"
+          }
+     ],
+     "paths": {
+          "/api/v1/contacts/{contactId}/addresses": {
+               "post": {
+                    "operationId": "createAddressByContactId",
+                    "tags": ["Address Management"],
+                    "summary": "Create new address",
+                    "description": "Endpoint to create a new address associated with a specific contact ID",
+                    "parameters": [
+                         {
+                              "name": "Authorization",
+                              "in": "header",
+                              "description": "JWT token for authentication",
+                              "required": true,
+                              "schema": {
+                                   "type": "string"
+                              }
+                         },
+                         {
+                              "name": "contactId",
+                              "in": "path",
+                              "description": "ID of the contact",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         }
+                    ],
+                    "requestBody": {
+                         "content": {
+                              "application/json": {
+                                   "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                             "country": {
+                                                  "required": true,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "city": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "province": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "street": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "postal_code": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maxItems": 100,
+                                                  "minimum": 5
+                                             }
+                                        }
+                                   },
+                                   "example": {
+                                        "country": "Example country",
+                                        "city": "Example city",
+                                        "province": "Example province",
+                                        "street": "Example street",
+                                        "postal_code": "53135"
+                                   }
+                              }
+                         }
+                    },
+                    "responses": {
+                         "200": {
+                              "description": "Success response with address data",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": true,
+                                             "message": "Address created successfully",
+                                             "data": {
+                                                  "id": 1,
+                                                  "country": "Example country",
+                                                  "city": "Example city",
+                                                  "province": "Example city",
+                                                  "street": "Example street",
+                                                  "postal_code": "53135"
+                                             }
+                                        }
+                                   }
+                              }
+                         },
+                         "404": {
+                              "description": "Not Found: Contact not found",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Contact not found",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "400": {
+                              "description": "Bad Request: Validation Failed",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Validation failed. Please check your input.",
+                                             "data": {},
+                                             "errors": [
+                                                  {
+                                                       "path": "country",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "city",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "province",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "street",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "postal_code",
+                                                       "message": "String must contain at least 5 character"
+                                                  }
+                                             ]
+                                        }
+                                   }
+                              }
+                         },
+                         "401": {
+                              "description": "Unauthorized: Missing or invalid token",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Access denied",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "500": {
+                              "description": "Internal Server Error",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Server internal errors",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         }
+                    }
+               },
+
+               "get": {
+                    "operationId": "getDataAddressByContactId",
+                    "tags": ["Address Management"],
+                    "summary": "Get addresses by contact ID",
+                    "description": "Endpoint to get all addresses associated with a specific contact ID",
+                    "parameters": [
+                         {
+                              "name": "Authorization",
+                              "in": "header",
+                              "description": "JWT token for authentication",
+                              "required": true,
+                              "schema": {
+                                   "type": "string"
+                              }
+                         },
+                         {
+                              "name": "contactId",
+                              "in": "path",
+                              "description": "ID of the contact",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         }
+                    ],
+                    "responses": {
+                         "200": {
+                              "description": "Success response with address data",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": true,
+                                             "message": "Addresses retrieved successfully",
+                                             "data": [
+                                                  {
+                                                       "id": 1,
+                                                       "country": "Example country",
+                                                       "city": "Example city",
+                                                       "province": "Example city",
+                                                       "street": "Example street",
+                                                       "postal_code": "53135"
+                                                  },
+                                                  {
+                                                       "id": 2,
+                                                       "country": "Example country",
+                                                       "city": "Example city",
+                                                       "province": "Example city",
+                                                       "street": "Example street",
+                                                       "postal_code": "53135"
+                                                  },
+                                                  {
+                                                       "id": 3,
+                                                       "country": "Example country",
+                                                       "city": "Example city",
+                                                       "province": "Example city",
+                                                       "street": "Example street",
+                                                       "postal_code": "53135"
+                                                  }
+                                             ]
+                                        }
+                                   }
+                              }
+                         },
+                         "404": {
+                              "description": "Not Found: Contact not found",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Contact not found",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "401": {
+                              "description": "Unauthorized: Missing or invalid token",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Access denied",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "500": {
+                              "description": "Internal Server Error",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Server internal errors",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         }
+                    }    
+               }
+          },
+
+          "/api/v1/contacts/:contactId/addresses/{addressId}": {
+               "get": {
+                    "operationId": "getAddressById",
+                    "tags": ["Address Management"],
+                    "summary": "Get address by ID",
+                    "description": "Endpoint to retrieve an address by its ID",
+                    "parameters": [
+                         {
+                              "name": "Authorization",
+                              "in": "header",
+                              "description": "JWT token for authentication",
+                              "required": true,
+                              "schema": {
+                                   "type": "string"
+                              }
+                         },
+                         {
+                              "name": "contactId",
+                              "in": "path",
+                              "description": "ID of the contact",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         },
+                         {
+                              "name": "addressId",
+                              "in": "path",
+                              "description": "ID of the address",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         }
+                    ],
+                    "responses": {
+                         "200": {
+                              "description": "Success response with address data",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": true,
+                                             "message": "Address retrieved successfully",
+                                             "data": {
+                                                  "id": 1,
+                                                  "country": "Example country",
+                                                  "city": "Example city",
+                                                  "province": "Example province",
+                                                  "street": "Example street",
+                                                  "postal_code": "53135"
+                                             }
+                                        }
+                                   }
+                              }
+                         },
+                         "401": {
+                              "description": "Unauthorized: Missing or invalid token",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Access denied",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "404": {
+                              "description": "Not Found: Address not found",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Address not found",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "500": {
+                              "description": "Internal Server Error",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Server internal errors",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         }
+                    }
+               },
+
+               "put": {
+                    "operationId": "updateAddressById",
+                    "tags": ["Address Management"],
+                    "summary": "Update address by ID",
+                    "description": "Endpoint to update an address by its ID",
+                    "parameters": [
+                         {
+                              "name": "Authorization",
+                              "in": "header",
+                              "description": "JWT token for authentication",
+                              "required": true,
+                              "schema": {
+                                   "type": "string"
+                              }
+                         },
+                         {
+                              "name": "contactId",
+                              "in": "path",
+                              "description": "ID of the contact",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         },
+                         {
+                              "name": "addressId",
+                              "in": "path",
+                              "description": "ID of the address",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         }
+                    ],
+                    "requestBody": {
+                         "content": {
+                              "application/json": {
+                                   "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                             "country": {
+                                                  "required": true,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "city": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "province": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "street": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maximum": 100,
+                                                  "minimum": 5
+                                             },
+                                             "postal_code": {
+                                                  "required": false,
+                                                  "type": "string",
+                                                  "maxItems": 100,
+                                                  "minimum": 5
+                                             }
+                                        }
+                                   },
+                                   "example": {
+                                        "country": "Example a new country",
+                                        "city": "Example a new city",
+                                        "province": "Example a new province",
+                                        "street": "Example a new street",
+                                        "postal_code": "53135"
+                                   }
+                              }
+                         }
+                    },
+                    "responses": {
+                         "200": {
+                              "description": "Success response with updated address data",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": true,
+                                             "message": "Address updated successfully",
+                                             "data": {
+                                                  "id": 1,
+                                                  "country": "Example a new country",
+                                                  "city": "Example a new city",
+                                                  "province": "Example a new province",
+                                                  "street": "Example a new street",
+                                                  "postal_code": "53135"
+                                             }
+                                        }
+                                   }
+                              }
+                         },
+                         "400": {
+                              "description": "Bad Request: Validation Failed",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Validation failed. Please check your input.",
+                                             "data": {},
+                                             "errors": [
+                                                  {
+                                                       "path": "country",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "city",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "province",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "street",
+                                                       "message": "String must contain at least 5 character"
+                                                  },
+                                                  {
+                                                       "path": "postal_code",
+                                                       "message": "String must contain at least 5 character"
+                                                  }
+                                             ]
+                                        }
+                                   }
+                              }
+                         },
+                         "404": {
+                              "description": "Not Found: Address not found",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Address not found",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "401": {
+                              "description": "Unauthorized: Missing or invalid token",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Access denied",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "500": {
+                              "description": "Internal Server Error",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Server internal errors",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         }
+                    }
+               },
+
+               "delete": {
+                    "operationId": "removeAddressById",
+                    "tags": ["Address Management"],
+                    "summary": "Remove address by ID",
+                    "description": "Endpoint to remove an address by its ID",
+                    "parameters": [
+                         {
+                              "name": "Authorization",
+                              "in": "header",
+                              "description": "JWT token for authentication",
+                              "required": true,
+                              "schema": {
+                                   "type": "string"
+                              }
+                         },
+                         {
+                              "name": "contactId",
+                              "in": "path",
+                              "description": "ID of the contact",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         },
+                         {
+                              "name": "addressId",
+                              "in": "path",
+                              "description": "ID of the address",
+                              "required": true,
+                              "schema": {
+                                   "type": "integer",
+                                   "format": "int64"
+                              }
+                         }
+                    ],
+                    "responses": {
+                         "200": {
+                              "description": "Success response with removed address data",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": true,
+                                             "message": "Address removed successfully",
+                                             "data": "OK"
+                                        }
+                                   }
+                              }
+                         },
+                         "404": {
+                              "description": "Not Found: Address not found",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Address not found",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "401": {
+                              "description": "Unauthorized: Missing or invalid token",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Access denied",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         },
+                         "500": {
+                              "description": "Internal Server Error",
+                              "content": {
+                                   "application/json": {
+                                        "example": {
+                                             "success": false,
+                                             "message": "Server internal errors",
+                                             "data": {}
+                                        }
+                                   }
+                              }
+                         }
+                    }                   
+               }
+          }
+     }
+}

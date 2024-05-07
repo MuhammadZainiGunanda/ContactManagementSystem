@@ -1,9 +1,9 @@
 import supertest, { Response } from "supertest";
 import { TestUtil } from "./util/test-util";
-import { web } from '../src/app/web';
+import { webApplication } from '../src/app/web';
 import { Contact } from "@prisma/client";
 
-describe("Test create operation -> POST /api/contacts/", () => {
+describe("Test create operation -> POST /api/v1/contacts/", () => {
 
      beforeEach(async () : Promise<void> => {
           await TestUtil.createUser();
@@ -15,24 +15,24 @@ describe("Test create operation -> POST /api/contacts/", () => {
      });
 
      it("should can a new create contact", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
-          console.info(getTokenFromCookie);
+          console.info(token);
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          const create : Response = await supertest(web)
-               .post("/api/contacts")
-               .set("Cookie", `${getTokenFromCookie}`)
+          const create : Response = await supertest(webApplication)
+               .post("/api/v1/contacts")
+               .set("Cookie", `${token}`)
                .send({
                     first_name: "testt",
                     last_name: "testt",
@@ -50,24 +50,24 @@ describe("Test create operation -> POST /api/contacts/", () => {
      });
 
      it("should reject if data is invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
-          console.info(getTokenFromCookie);
+          console.info(token);
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          const create : Response = await supertest(web)
-               .post("/api/contacts")
-               .set("Cookie", `${getTokenFromCookie}`)
+          const create : Response = await supertest(webApplication)
+               .post("/api/v1/contacts")
+               .set("Cookie", `${token}`)
                .send({
                     first_name: "",
                     last_name: "",
@@ -82,23 +82,23 @@ describe("Test create operation -> POST /api/contacts/", () => {
      });
 
      it("should reject if token is wronggg", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
-          console.info(getTokenFromCookie);
+          console.info(token);
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          const create : Response = await supertest(web)
-               .post("/api/contacts")
+          const create : Response = await supertest(webApplication)
+               .post("/api/v1/contacts")
                .set("Cookie", `salah`)
                .send({
                     first_name: "testt",
@@ -115,7 +115,7 @@ describe("Test create operation -> POST /api/contacts/", () => {
 
 });
 
-describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
+describe("Test get contact operation -> GET /api/v1/contacts/:contactId", () => {
 
      beforeEach(async () : Promise<void> => {
           await TestUtil.createUser();
@@ -128,14 +128,14 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
      });
 
      it("should can to get contact", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -143,9 +143,9 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let get : Response = await supertest(web)
-               .get(`/api/contacts/${getContact?.id}`)
-               .set("Cookie", `${getTokenFromCookie}`);
+          let get : Response = await supertest(webApplication)
+               .get(`/api/v1/contacts/${getContact?.id}`)
+               .set("Cookie", `${token}`);
                
           expect(get.statusCode).toBe(200);
           expect(get.body.data.id).toBe(Number(`${getContact?.id}`));
@@ -156,14 +156,14 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
      });
 
      it("should reject if contact id is not found", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -172,9 +172,9 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
           const getContact : Contact | null = await TestUtil.getContact();
           
           if (getContact) {
-               let get : Response = await supertest(web)
-                    .get(`/api/contacts/${getContact?.id + 1}`)
-                    .set("Cookie", `${getTokenFromCookie}`)
+               let get : Response = await supertest(webApplication)
+                    .get(`/api/v1/contacts/${getContact?.id + 1}`)
+                    .set("Cookie", `${token}`)
 
                console.info(get.body.errors);
 
@@ -184,14 +184,14 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
      });
 
      it("should reject if invalid token", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
           
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -199,8 +199,8 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let get : Response = await supertest(web)
-               .get(`/api/contacts/${getContact?.id}`)
+          let get : Response = await supertest(webApplication)
+               .get(`/api/v1/contacts/${getContact?.id}`)
                .set("Cookie", "salah")
 
           expect(get.statusCode).toBe(400);
@@ -209,7 +209,7 @@ describe("Test get contact operation -> GET /api/contacts/:contactId", () => {
 
 });
 
-describe("Test update contact operation -> PUT /api/contacts/:contactId", () => {
+describe("Test update contact operation -> PUT /api/v1/contacts/:contactId", () => {
 
      beforeEach(async () : Promise<void> => {
           await TestUtil.createUser();
@@ -222,14 +222,14 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
      });
 
      it("should can update data contact", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -237,9 +237,9 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let update : Response = await supertest(web)
-               .put(`/api/contacts/${getContact?.id}`)
-               .set("Cookie", `${getTokenFromCookie}`)
+          let update : Response = await supertest(webApplication)
+               .put(`/api/v1/contacts/${getContact?.id}`)
+               .set("Cookie", `${token}`)
                .send({
                     first_name: "testLagi",
                     last_name: "testLagi",
@@ -258,14 +258,14 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
      });
 
      it("should reject if data invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -273,9 +273,9 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let update : Response = await supertest(web)
-               .put(`/api/contacts/${getContact?.id}`)
-               .set("Cookie", `${getTokenFromCookie}`)
+          let update : Response = await supertest(webApplication)
+               .put(`/api/v1/contacts/${getContact?.id}`)
+               .set("Cookie", `${token}`)
                .send({
                     first_name: "",
                     last_name: "",
@@ -291,14 +291,14 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
      });
 
      it("should reject if token is wrong", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie = login.headers["set-cookie"][0];
+          const token = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -306,8 +306,8 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let update : Response = await supertest(web)
-               .put(`/api/contacts/${getContact?.id}`)
+          let update : Response = await supertest(webApplication)
+               .put(`/api/v1/contacts/${getContact?.id}`)
                .set("Cookie", `salah`)
                .send({
                     first_name: "testLagi",
@@ -324,7 +324,7 @@ describe("Test update contact operation -> PUT /api/contacts/:contactId", () => 
 
 });
 
-describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () => {
+describe("Test delete contact operation -> DELETE /api/v1/contacts/:contactId", () => {
 
      beforeEach(async () => {
           await TestUtil.createUser();
@@ -337,14 +337,14 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
      });
 
      it("should to be able to remove contact by id", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
           
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
           
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -352,9 +352,9 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let remove : Response = await supertest(web)
-               .delete(`/api/contacts/${getContact?.id}`)
-               .set("Cookie", `${getTokenFromCookie}`);
+          let remove : Response = await supertest(webApplication)
+               .delete(`/api/v1/contacts/${getContact?.id}`)
+               .set("Cookie", `${token}`);
 
           console.info(remove.body);
 
@@ -363,14 +363,14 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
      });
 
      it("should reject if token is invalid or wrong", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
           
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
           
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -378,8 +378,8 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
 
           const getContact : Contact | null = await TestUtil.getContact();
 
-          let remove : Response = await supertest(web)
-               .delete(`/api/contacts/${getContact?.id}`)
+          let remove : Response = await supertest(webApplication)
+               .delete(`/api/v1/contacts/${getContact?.id}`)
                .set("Cookie", `salah`);
 
           console.info(remove.body);
@@ -389,14 +389,14 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
      });
 
      it("should reject if id is invalid", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
           
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
           
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
@@ -405,8 +405,8 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
           const getContact : Contact | null = await TestUtil.getContact();
 
           if(getContact) {
-               let remove : Response = await supertest(web)
-                    .delete(`/api/contacts/${getContact?.id + 1}`)
+               let remove : Response = await supertest(webApplication)
+                    .delete(`/api/v1/contacts/${getContact?.id + 1}`)
                     .set("Cookie", `salah`);
 
                console.info(remove.body);
@@ -418,7 +418,7 @@ describe("Test delete contact operation -> DELETE /api/contacts/:contactId", () 
 
 });
 
-describe("Test search contact operation -> GET /api/contact/search", () => {
+describe("Test search contact operation -> GET /api/v1/contact/search", () => {
 
      beforeEach(async () => {
           await TestUtil.createUser();
@@ -431,22 +431,22 @@ describe("Test search contact operation -> GET /api/contact/search", () => {
      });
 
      it("should be able to search contact", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
      
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
      
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          let search : Response = await supertest(web)
-               .get("/api/contacts/search")
-               .set("Cookie", `${getTokenFromCookie}`);
+          let search : Response = await supertest(webApplication)
+               .get("/api/v1/contacts/search")
+               .set("Cookie", `${token}`);
 
           console.info(search.body);
 
@@ -458,23 +458,23 @@ describe("Test search contact operation -> GET /api/contact/search", () => {
      });
 
      it("should to be able search contact using name", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          let search : Response = await supertest(web)
-               .get("/api/contacts/search")
+          let search : Response = await supertest(webApplication)
+               .get("/api/v1/contacts/search")
                .query({ name: "es"})
-               .set("Cookie", `${getTokenFromCookie}`);
+               .set("Cookie", `${token}`);
 
           console.info(search.body);
 
@@ -486,23 +486,23 @@ describe("Test search contact operation -> GET /api/contact/search", () => {
      });
 
      it("should to be able search contact using email", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          let search : Response = await supertest(web)
-               .get("/api/contacts/search")
+          let search : Response = await supertest(webApplication)
+               .get("/api/v1/contacts/search")
                .query({ email: ".com"})
-               .set("Cookie", `${getTokenFromCookie}`);
+               .set("Cookie", `${token}`);
 
           console.info(search.body);
 
@@ -514,23 +514,23 @@ describe("Test search contact operation -> GET /api/contact/search", () => {
      });
 
      it("should to be able search contact using phone", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          let search : Response = await supertest(web)
-               .get("/api/contacts/search")
+          let search : Response = await supertest(webApplication)
+               .get("/api/v1/contacts/search")
                .query({ phone: "5"})
-               .set("Cookie", `${getTokenFromCookie}`);
+               .set("Cookie", `${token}`);
 
           console.info(search.body);
 
@@ -542,23 +542,23 @@ describe("Test search contact operation -> GET /api/contact/search", () => {
      });
 
      it("should reject if contact does not exist", async () => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
                });
 
-          const getTokenFromCookie : string = login.headers["set-cookie"][0];
+          const token : string = login.headers["set-cookie"][0];
 
           expect(login.statusCode).toBe(200);
           expect(login.body.data.username).toBe("testt");
           expect(login.body.data.name).toBe("testt");
 
-          let search : Response = await supertest(web)
-               .get("/api/contacts/search")
+          let search : Response = await supertest(webApplication)
+               .get("/api/v1/contacts/search")
                .query({ name: "blank"})
-               .set("Cookie", `${getTokenFromCookie}`);
+               .set("Cookie", `${token}`);
 
           console.info(search.body);
 

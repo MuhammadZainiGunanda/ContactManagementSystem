@@ -1,6 +1,6 @@
 import { Contact } from "@prisma/client";
 
-// Tipe data buat hasil operasi terkait
+// Representasi hasil operasi terkait alamat
 export type ContactOperationOutcome = {
      id : number;
      first_name : string;
@@ -9,16 +9,16 @@ export type ContactOperationOutcome = {
      phone? : string;
 }
 
-// Tipe data buat request kontak baru
-export type InputContactCreateRequest = {
+// Request untuk membuat kontak
+export type ContactCreateRequest = {
      first_name : string;
      last_name? : string;
      email? : string;
      phone? : string;
 }
 
-// Tipe data buat update kontak
-export type InputContactUpdateRequest = {
+// Request untuk update kontak
+export type ContactUpdateRequest = {
      id : number;
      first_name : string;
      last_name? : string;
@@ -26,8 +26,8 @@ export type InputContactUpdateRequest = {
      phone : string;
 }
 
-// Tipe data buat search kontak
-export type InputContactSearchRequest = {
+// Request untuk mencari kontak
+export type ContactSearchRequest = {
      name? : string;
      phone? : string;
      email? : string;
@@ -35,20 +35,20 @@ export type InputContactSearchRequest = {
      size : number;
 }
 
-// Tipe data untuk info page dari hasil search
+// Representasi halaman untuk paginasi
 export type Page = {
      size : number;
      total_page : number;
      current_page : number;
 }
 
-// Tipe data buat hasil dari search kontak yang udah terpaging
+// Representasi untuk data yang telah di paginasi
 export type Paginated<T> = {
      data : Array<T>;
      paging : Page;
 }
 
-// Method buat konveri kontak payload dari Prisma
+// Konversi data kontak menjadi hasil operasi kontak
 export function convertToContactResponseOutcome(contactPayload : Contact) : ContactOperationOutcome {
      return { 
           id: contactPayload.id, 

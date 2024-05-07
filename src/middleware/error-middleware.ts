@@ -9,12 +9,12 @@ export function errorMiddleware(error : Error, request : Request, response : Res
                { path: issue.path.join("."), message: issue.message }
           ));
 
-          response.status(400).json({ errors: handleIssueZod });
+          response.status(400).json({ success: false, message: "Validation failed. Please check your input.", errors: handleIssueZod, data: {} });
      }
 
      // Handle if error is ResponseError
      if (error instanceof ResponseError) {
-          response.status(error.status).json({ errors: error.message });
+          response.status(error.status).json({ success: false, message: error.message, data: {} });
      }
 
      response.status(500).json({ errors: "Internal server erorrs"});
