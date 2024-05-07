@@ -1,75 +1,75 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../service/user-service";
-import { UserOperationOutcome } from "../model/user-management";
+import { UserOperationOutcome, UserRegistrationRequest } from "../model/user-management";
 import { ResponseError } from "../error/response-error";
 import jwt from 'jsonwebtoken';
 import { RequestUserValidator } from "../types/request-middleware";
 
 export class UserController {
 
-     static async createUserRegistration(request : Request, response : Response, next : NextFunction) : Promise<void> {
+     static async registrationUser(request: Request, response: Response, next: NextFunction): Promise<void> {
           try {
-               // Manggil layanan untuk proses buat user baru, dan nunggu konfirmasi
-               const registrationConfirmation : UserOperationOutcome | ResponseError = 
+               // Panggil layanan untuk proses pembuatan user baru, dan tunggu konfirmasi
+               const registrationConfirmation: UserOperationOutcome | ResponseError = 
                     await UserService.submitUserRegistration(request.body);
-
-               // Jika OK, respons 200 serta data dari hasil konfirmasi
-               response.status(200).json({ data: registrationConfirmation });
+     
+               // Jika berhasil, kirim respons 200 bersama dengan data konfirmasi
+               response.status(200).json({ success: true, message: "Register successfully", data: registrationConfirmation });
           } catch (error) {
-               next(error); // Lempar Error ke middleware selanjutnya
+               next(error); // Lewatkan Error ke middleware berikutnya
           }
      }
-
-     static async loginUserCredentials(request : Request, response : Response, next : NextFunction) : Promise<void> {
+     
+     static async loginUser(request: Request, response: Response, next: NextFunction): Promise<void> {
           try {
-               // Manggil layanan untuk prsess user login, dan nunggu konfirmasi
-               const loginUserConfirmation : UserOperationOutcome | ResponseError = 
+               // Panggil layanan untuk proses login user, dan tunggu konfirmasi
+               const loginUserConfirmation: UserOperationOutcome | ResponseError = 
                     await UserService.submitUserLogin(request.body);
-
-               // Jika OK, buat token JWT dengan data konfirmasi login, dengan mengatur waktu kedaluwarsa
+     
+               // Jika berhasil, buat token JWT dengan data konfirmasi login, dan atur waktu kedaluwarsa
                const createToken = jwt.sign({ ...loginUserConfirmation }, 
                     process.env.TOKEN_SECRET_KEY!, { expiresIn: process.env.EXPIRES_IN! });
                
                // Atur cookie dengan token JWT untuk otentikasi sesi
                response.cookie("login", createToken, { httpOnly: true, secure: true, sameSite: "strict" })
-               .status(200).json({ data: loginUserConfirmation });
+               .status(200).json({ success: true, message: "User logged in successfully", data: loginUserConfirmation });
           } catch (error) {
-               next(error); // Lempar Error ke middleware selanjutnya
+               next(error); // Lewatkan Error ke middleware berikutnya
           }
      }
-
-     static async getUser(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
+     
+     static async getUser(request: RequestUserValidator, response: Response, next: NextFunction): Promise<void> {
           try {
-               // Manggil layanan untuk proses mendapatkan data user, dan nunggu konfirmasi
-               const getUserConfirmation : UserOperationOutcome | ResponseError = 
+               // Panggil layanan untuk mendapatkan data user, dan tunggu konfirmasi
+               const getUserConfirmation: UserOperationOutcome | ResponseError = 
                     await UserService.submitGetUser(request.user!);
-
-               // Jika OK, respons 200, serta data dari hasil konfirmasi
-               response.status(200).json({ data: getUserConfirmation });
+     
+               // Jika berhasil, kirim respons 200 bersama dengan data konfirmasi
+               response.status(200).json({ success: true, message: "User data retrieved successfully", data: getUserConfirmation });
           } catch (error) {
-               next(error); // Lempar Error ke middleware selanjutnya
+               next(error); // Lewatkan Error ke middleware berikutnya
           }
      }
-
-     static async updateUser(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void>  {
+     
+     static async updateUser(request: RequestUserValidator, response: Response, next: NextFunction): Promise<void>  {
           try {
-               // Manggil layanan untuk proses update record user, dan nunggu konfirmasi
-               const updateUserConfirmation : UserOperationOutcome | ResponseError = 
+               // Panggil layanan untuk proses pembaruan data user, dan tunggu konfirmasi
+               const updateUserConfirmation: UserOperationOutcome | ResponseError = 
                     await UserService.submitUpdateUser(request.user!, request.body);
-
-               // Jika OK, respons 200, serta data dari hasil konfirmasi
-               response.status(200).json({ data: updateUserConfirmation });
+     
+               // Jika berhasil, kirim respons 200 bersama dengan data konfirmasi
+               response.status(200).json({ success: true, message: "User data updated successfully", data: updateUserConfirmation });
           } catch (error) {
-               next(error); // Lempar Error ke middleware selanjutnya
+               next(error); // Lewatkan Error ke middleware berikutnya
           }
      }
-
-     static async logoutUser(request : RequestUserValidator, response : Response, next : NextFunction) : Promise<void> {
+     
+     static async logoutUser(request: RequestUserValidator, response: Response, next: NextFunction): Promise<void> {
           try {
-               // Clear cookie, serta respons 200 sebagai tanda proses logout berhasil
-               response.clearCookie("login").status(200).json({ data: "OK" });
+               // Hapus cookie, dan kirim respons 200 sebagai tanda proses logout berhasil
+               response.clearCookie("login").status(200).json({ success: true, message: "User logged out successfully", data: "OK" });
           } catch (error) {
-               next(error); // Lempar Error ke middleware selanjutnya
+               next(error); // Lewatkan Error ke middleware berikutnya
           }
      }
 

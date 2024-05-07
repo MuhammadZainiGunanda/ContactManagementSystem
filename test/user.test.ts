@@ -1,16 +1,16 @@
 import supertest, { Response } from "supertest";
-import { web } from '../src/app/web';
+import { webApplication } from '../src/app/web';
 import { TestUtil } from "./util/test-util";
 
-describe("Test registration operation -> POST : /api/users/register", () : void => {
+describe("Test registration operation -> POST : /api/v1/users/register", () : void => {
 
      afterEach(async () : Promise<void> => {
           await TestUtil.deleteUser();
      });
 
      it("should to be able a new user register", async () : Promise<void> => {
-          const response : Response = await supertest(web)
-               .post("/api/users/register")
+          const response : Response = await supertest(webApplication)
+               .post("/api/v1/users/register")
                .send({
                     username: "testt",
                     name: "testt",
@@ -25,8 +25,8 @@ describe("Test registration operation -> POST : /api/users/register", () : void 
      });
 
      it("should reject if data is invalid", async () : Promise<void> => {
-          const response : Response = await supertest(web)
-               .post("/api/users/register")
+          const response : Response = await supertest(webApplication)
+               .post("/api/v1/users/register")
                .send({
                     username: "",
                     name: "",
@@ -44,8 +44,8 @@ describe("Test registration operation -> POST : /api/users/register", () : void 
      });
 
      it("should reject if user is already exitst", async () : Promise<void> => {
-          let response : Response = await supertest(web)
-               .post("/api/users/register")
+          let response : Response = await supertest(webApplication)
+               .post("/api/v1/users/register")
                .send({
                     username: "testt",
                     name: "testt",
@@ -58,8 +58,8 @@ describe("Test registration operation -> POST : /api/users/register", () : void 
           expect(response.body.data.username).toBe("testt");
           expect(response.body.data.name).toBe("testt");
 
-          response = await supertest(web)
-               .post("/api/users/register")
+          response = await supertest(webApplication)
+               .post("/api/v1/users/register")
                .send({
                     username: "testt",
                     name: "testt",
@@ -74,7 +74,7 @@ describe("Test registration operation -> POST : /api/users/register", () : void 
      
 });
 
-describe("Test login operation -> POST : /api/users/login", () : void => {
+describe("Test login operation -> POST : /api/v1/users/login", () : void => {
 
      beforeEach(async function createUserBeforeTest() : Promise<void> {
           await TestUtil.createUser();
@@ -85,8 +85,8 @@ describe("Test login operation -> POST : /api/users/login", () : void => {
      });
 
      it("should to be able user login", async () : Promise<void> => {
-          const response : Response = await supertest(web)
-               .post("/api/users/login")
+          const response : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -104,8 +104,8 @@ describe("Test login operation -> POST : /api/users/login", () : void => {
      });
 
      it("should reject if data is invalid", async () : Promise<void> => {
-          const response : Response = await supertest(web)
-               .post("/api/users/login")
+          const response : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "",
                     password: ""
@@ -125,8 +125,8 @@ describe("Test login operation -> POST : /api/users/login", () : void => {
      });
 
      it("should reject if data is wrong", async () : Promise<void> => {
-          const response : Response = await supertest(web)
-               .post("/api/users/login")
+          const response : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testSalah",
                     password: "testSalah"
@@ -140,7 +140,7 @@ describe("Test login operation -> POST : /api/users/login", () : void => {
 
 });
 
-describe("Test get operastion -> GET : /api/users/me", () : void => {
+describe("Test get operastion -> GET : /api/v1/users/me", () : void => {
      
      beforeEach(async () : Promise<void> => {
           await TestUtil.createUser();
@@ -151,8 +151,8 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
      });
 
      it("should to be able get user", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -166,13 +166,13 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          const getTokenFromCookies = login.headers["set-cookie"][0];
+          const token: string = login.headers["set-cookie"][0];
 
-          console.info(getTokenFromCookies);
+          console.info(token);
 
-          let get : Response = await supertest(web)
-               .get("/api/users/me")
-               .set("Cookie", `${getTokenFromCookies}`);
+          let get : Response = await supertest(webApplication)
+               .get("/api/v1/users/me")
+               .set("Cookie", `${token}`);
 
           console.info(get.body);
           
@@ -182,8 +182,8 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
      });
 
      it("should Unauthorized if token is invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -197,10 +197,10 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          const getTokenFromCookies = login.headers["set-cookie"][0];
+          const token: string = login.headers["set-cookie"][0];
 
-          let get : Response = await supertest(web)
-               .get("/api/users/me")
+          let get : Response = await supertest(webApplication)
+               .get("/api/v1/users/me")
                .set("Cookie", `salah`);
           
           expect(get.statusCode).toBe(400);
@@ -209,7 +209,7 @@ describe("Test get operastion -> GET : /api/users/me", () : void => {
 
 });
 
-describe("Test update operation -> PATH /api/users/update", () : void => {
+describe("Test update operation -> PATH /api/v1/users/update", () : void => {
 
      beforeEach(async () => {
           await TestUtil.createUser();
@@ -220,8 +220,8 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
      });
 
      it("should to be able update user data name", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -235,11 +235,11 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          let getTokenFromCookies = login.headers["set-cookie"][0];
+          let token: string = login.headers["set-cookie"][0];
 
-          let update : Response = await supertest(web)
-               .patch("/api/users/update")
-               .set("Cookie", `${getTokenFromCookies}`)
+          let update : Response = await supertest(webApplication)
+               .patch("/api/v1/users/update")
+               .set("Cookie", `${token}`)
                .send({
                     name: "testlagi",
                });
@@ -252,8 +252,8 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
      });
 
      it("should to be able update user data password", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -267,11 +267,11 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          let getTokenFromCookies = login.headers["set-cookie"][0];
+          let token: string = login.headers["set-cookie"][0];
 
-          let update : Response = await supertest(web)
-               .patch("/api/users/update")
-               .set("Cookie", `${getTokenFromCookies}`)
+          let update : Response = await supertest(webApplication)
+               .patch("/api/v1/users/update")
+               .set("Cookie", `${token}`)
                .send({
                     password: "TestLagi",
                });
@@ -284,8 +284,8 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
      });
 
      it("should reject if data is invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -299,11 +299,11 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          let getTokenFromCookies = login.headers["set-cookie"][0];
+          let token: string = login.headers["set-cookie"][0];
 
-          let update : Response = await supertest(web)
-               .patch("/api/users/update")
-               .set("Cookie", `${getTokenFromCookies}`)
+          let update : Response = await supertest(webApplication)
+               .patch("/api/v1/users/update")
+               .set("Cookie", `${token}`)
                .send({
                     username: "",
                     password: "",
@@ -316,8 +316,8 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
      });
 
      it("should reject if token is invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -331,10 +331,10 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          let getTokenFromCookies = login.headers["set-cookie"][0];
+          let token: string = login.headers["set-cookie"][0];
 
-          let update : Response = await supertest(web)
-               .patch("/api/users/update")
+          let update : Response = await supertest(webApplication)
+               .patch("/api/v1/users/update")
                .set("Cookie", `salah`)
                .send({
                     username: "testlagi",
@@ -349,7 +349,7 @@ describe("Test update operation -> PATH /api/users/update", () : void => {
 
 });
 
-describe("Test logout operation -> DELETE /api/users/logout", () : void => {
+describe("Test logout operation -> DELETE /api/v1/users/logout", () : void => {
 
      beforeEach(async () : Promise<void> => {
           await TestUtil.createUser();
@@ -360,8 +360,8 @@ describe("Test logout operation -> DELETE /api/users/logout", () : void => {
      });
 
      it("should to be able to user logout", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -375,11 +375,11 @@ describe("Test logout operation -> DELETE /api/users/logout", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          const getTokenFromCookies = login.header["set-cookie"][0];
+          const token: string = login.header["set-cookie"][0];
 
-          let logout : Response = await supertest(web)
-               .delete("/api/users/logout")
-               .set("Cookie", `${getTokenFromCookies}`);
+          let logout : Response = await supertest(webApplication)
+               .delete("/api/v1/users/logout")
+               .set("Cookie", `${token}`);
 
           console.info(logout.header["set-cookie"]);
 
@@ -389,8 +389,8 @@ describe("Test logout operation -> DELETE /api/users/logout", () : void => {
      });
 
      it("should reject if token is invalid", async () : Promise<void> => {
-          let login : Response = await supertest(web)
-               .post("/api/users/login")
+          let login : Response = await supertest(webApplication)
+               .post("/api/v1/users/login")
                .send({
                     username: "testt",
                     password: "Testt"
@@ -404,10 +404,10 @@ describe("Test logout operation -> DELETE /api/users/logout", () : void => {
           expect(login.body.data.name).toBe("testt");
           expect(login.header["set-cookie"][0]).toBeDefined();
 
-          const getTokenFromCookies = login.header["set-cookie"][0];
+          const token: string = login.header["set-cookie"][0];
 
-          let logout : Response = await supertest(web)
-               .delete("/api/users/logout")
+          let logout : Response = await supertest(webApplication)
+               .delete("/api/v1/users/logout")
                .set("Cookie", `salah`);
 
           console.info(logout.header["set-cookie"]);

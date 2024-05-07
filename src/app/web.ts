@@ -6,10 +6,10 @@ import dotenv from 'dotenv';
 import { privateRouter } from '../router/private-api';
 
 dotenv.config();
-export const web : Application = express();
+export const webApplication: Application = express();
 
-web.use(express.json());
-web.use(cookieParser());
-web.use(publicRouter);
-web.use(privateRouter);
-web.use(errorMiddleware);
+webApplication.use(express.json());
+webApplication.use(cookieParser());
+webApplication.use(publicRouter);
+webApplication.use(privateRouter);
+webApplication.use(errorMiddleware);

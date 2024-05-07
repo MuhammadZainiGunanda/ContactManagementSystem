@@ -1,25 +1,38 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { RequestUserValidator } from "../types/request-middleware";
 import { prismaClient } from "../app/database";
+import { User } from "@prisma/client";
 
-export async function authMiddleware(request: RequestUserValidator, response: Response, next: NextFunction) : Promise<void> {
+export async function authMiddleware(request: RequestUserValidator, response: Response, next: NextFunction): Promise<void> {
+     // Ambil token user dari cookie
      const userToken = request.cookies["login"];
 
+     // Jika token user ada
      if (userToken) {
-          const decodeToken = jwt.verify(userToken, process.env.TOKEN_SECRET_KEY!);
+          try {
+               // Dekode token JWT untuk mendapatkan payload
+               const decodeToken: string | JwtPayload = jwt.verify(userToken, process.env.TOKEN_SECRET_KEY!);
 
-          const findUser = await prismaClient.user.findUnique({
-               where: { username: decodeToken.username }
-          });
+               // Cari user berdasarkan username dalam token
+               const findUser: User | null = await prismaClient.user.findUnique({
+                    where: { username: decodeToken.username }
+               });
 
-          if (!findUser) {
-               response.status(400).json({ errors: "Unauthorized"});
+               // Jika user tidak ditemukan dalam database, kembalikan respons error
+               if (!findUser) {
+                    response.status(400).json({ success: false, message: "Access denied", data: {} });
+               }
+
+               // Jika user ditemukan, tambahkan informasi user ke dalam objek request dan lanjutkan ke middleware berikutnya
+               request.user = findUser!;
+               next();
+          } catch (error) {
+               // Jika terjadi kesalahan dalam verifikasi token, kembalikan respons error
+               response.status(400).json({ success: false, message: "Access denied", data: {} });
           }
-
-          request.user = findUser!;
-          next();
      } else {
-          response.status(400).json({ errors: "Unauthorized"});
+          // Jika tidak ada token user, lempar respons error
+          response.status(400).json({ success: false, message: "Access denied", data: {} });
      }
 }
